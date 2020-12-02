@@ -22,61 +22,72 @@
  *   SOFTWARE.
  * 
  */
-
 package com.jsevy.jdxf;
 
-
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Interface for all DXF database objects, including graphical entities. Each
- * subclass will define a method to generate its corresponding DXF text for use in a DXF file,
- * including the database subclass marker, and should call this superclass method to insert the database handle.
+ * subclass will define a method to generate its corresponding DXF text for use
+ * in a DXF file, including the database subclass marker, and should call this
+ * superclass method to insert the database handle.
+ *
  * @author jsevy
  *
  */
-public class DXFDatabaseObject implements DXFObject
-{
-    
-    private static int handleCount = 1;
-    
+public class DXFDatabaseObject implements DXFObject {
+
+    private static final ThreadLocal<AtomicInteger> HANDLE_COUNT = new ThreadLocal<AtomicInteger>() {
+        @Override
+        protected AtomicInteger initialValue() {
+            return new AtomicInteger(1);
+        }
+    };
+
     protected int handle;
-    
-    public DXFDatabaseObject()
-    {
+
+    public DXFDatabaseObject() {
         // assign handle and increment handle count so will be unique
-        handle = handleCount;
-        handleCount++;
+        handle = HANDLE_COUNT.get().getAndIncrement();
     }
-    
+
     /**
-     * Implement DXFObject method; just print out group code and value of handle.
+     * Implement DXFObject method; just print out group code and value of
+     * handle.
+     *
+     * @return group code and value of handle.
      */
-    public String toDXFString()
-    {
+    @Override
+    public String toDXFString() {
         // print out handle
         String result = "5\n" + Integer.toHexString(handle) + "\n";
-        
+
         return result;
     }
-    
-    
+
     /**
      * Return handle for this object
+     *
      * @return Handle for object
      */
-    public int getHandle()
-    {
+    public int getHandle() {
         return handle;
     }
-    
-    
+
     /**
      * Return current handle count so can know what ones have been used
+     *
      * @return Current handle count
      */
-    public static int getHandleCount()
-    {
-        return handleCount;
+    public static int getHandleCount() {
+        return HANDLE_COUNT.get().get();
     }
-    
+
+    /**
+     * Reset the count
+     */
+    public static void reset() {
+        HANDLE_COUNT.get().set(1);
+    }
+
 }
