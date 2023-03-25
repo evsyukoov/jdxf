@@ -125,8 +125,8 @@ public class DXFText extends DXFEntity
         text.replace('\n', ' ');
         result += "1\n" + text + "\n";
         
-        // add text style info
-        result += "7\n" + style.getStyleName() + "\n";
+        // default TEXT style = STANDART
+//        result += "7\n" + style.getStyleName() + "\n";
         
         // we use the same base point whether adding alignment or not
         result += "10\n" + basePoint.x + "\n";
